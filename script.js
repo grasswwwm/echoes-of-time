@@ -155,7 +155,7 @@ window.addEventListener("DOMContentLoaded", () => {
     let visibleCells = {};
     const CELL_IMAGE_POSITIONS = {};
   
-    const images = Array.from({ length: 72 }, (_, i) => ({ src: `pictures/${i + 1} small.jpeg` }));
+    const images = Array.from({ length: 72 }, (_, i) => ({ src: `pictures/${i + 1}.jpeg` }));
     const audioSamples = Array.from({ length: 11 }, (_, i) => `audio/audio ${i + 1}.mp3`);
     const lyrics = [
         "Ticking away the moments that make up a dull day",
