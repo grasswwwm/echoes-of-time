@@ -1,0 +1,94 @@
+body { 
+    margin: 0; 
+    overflow: scroll; 
+    background: #eee; 
+  }
+  
+  #grid-container { 
+    position: relative; 
+    width: 100%; 
+    height: 100%; 
+  }
+  
+  /* Tiles */
+  .tile { 
+    position: absolute; 
+    width: 50px; 
+    height: 50px; 
+    background: #dbd7d7; 
+  }
+  
+  /* Predefined shapes */
+  .shape-1 { clip-path: polygon(0% 0%, 100% 0%, 100% 80%, 70% 100%, 0% 100%); }
+  .shape-2 { clip-path: polygon(0% 0%, 100% 0%, 80% 40%, 100% 100%, 0% 100%, 20% 60%); }
+  .shape-3 { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+  .shape-4 { clip-path: polygon(0% 0%, 100% 20%, 80% 100%, 20% 80%); }
+  .shape-5 { clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0 70%); }
+  
+  /* Macau floating images */
+  .macau-tile {
+    max-width: 300px;
+    max-height: 300px;
+    width: auto;
+    height: auto;
+    opacity: 0.85;
+    z-index: 5;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+    object-fit: contain;
+    filter: drop-shadow(4px 4px 8px rgba(0,0,0,0.5));
+    /* Animate transform, opacity, filter, and clip-path */
+    transition: transform 1.2s ease-in-out, opacity 0.8s ease-in-out, clip-path 1.2s ease-in-out, filter 1.2s ease-in-out;
+    position: absolute;
+    cursor: grab;
+    user-select: none;
+  }
+
+  .macau-tile:active {
+    cursor: grabbing;
+  }
+  
+  /* Initial clipping mask (less of image revealed) */
+  .macau-tile.clipped {
+    clip-path: polygon(25% 0%, 75% 0%, 90% 60%, 50% 100%, 10% 60%);
+  }
+  
+  /* On hover: expand the clip-path smoothly */
+  .macau-tile:hover {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 1;
+    z-index: 15;
+    filter: drop-shadow(6px 6px 12px rgba(0,0,0,0.6));
+    clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 100% 100%, 0% 100%);
+  }
+  
+
+  #audio-toggle {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    z-index: 100;
+    background: rgba(255,255,255,0.8);
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    font-family: sans-serif;
+  }
+  
+  #audio-toggle:hover {
+    background: rgba(255,255,255,1);
+  }
+  
+
+  #lyricCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 150;
+    pointer-events: none;
+  }
+  
+  
