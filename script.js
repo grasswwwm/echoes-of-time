@@ -37,6 +37,118 @@ window.addEventListener("DOMContentLoaded", () => {
         console.warn("Still blocked:", err);
       }
     });
+
+     // --- Info Popup Toggle ---
+const infoButton = document.getElementById("info-button");
+const infoPopup = document.getElementById("info-popup");
+const closeInfo = document.getElementById("close-info");
+
+infoButton.addEventListener("click", () => {
+  infoPopup.classList.add("show");
+});
+
+closeInfo.addEventListener("click", () => {
+  infoPopup.classList.remove("show");
+});
+
+// Optional: close popup if user clicks outside box
+infoPopup.addEventListener("click", (e) => {
+  if (e.target === infoPopup) {
+    infoPopup.classList.remove("show");
+  }
+});
+
+const scrollSpeed = 10;
+let keysPressed = {};
+
+window.addEventListener("keydown", (e) => {
+  keysPressed[e.key] = true;
+});
+
+window.addEventListener("keyup", (e) => {
+  keysPressed[e.key] = false;
+});
+
+function moveView() {
+  let dx = 0, dy = 0;
+  if (keysPressed["ArrowUp"]) dy -= scrollSpeed;
+  if (keysPressed["ArrowDown"]) dy += scrollSpeed;
+  if (keysPressed["ArrowLeft"]) dx -= scrollSpeed;
+  if (keysPressed["ArrowRight"]) dx += scrollSpeed;
+
+  if (dx !== 0 || dy !== 0) {
+    window.scrollBy({ top: dy, left: dx });
+  }
+
+  requestAnimationFrame(moveView);
+}
+
+moveView();
+
+// --- Smooth transparent mouse trail ---
+const trailCanvas = document.getElementById("trail-canvas");
+const tctx = trailCanvas.getContext("2d", { alpha: true }); // ensure transparency
+
+function resizeTrailCanvas() {
+  trailCanvas.width = window.innerWidth;
+  trailCanvas.height = window.innerHeight;
+}
+resizeTrailCanvas();
+window.addEventListener("resize", resizeTrailCanvas);
+
+let lastX = null;
+let lastY = null;
+let isMoving = false;
+
+// track mouse movement
+window.addEventListener("mousemove", (e) => {
+  if (lastX === null) {
+    lastX = e.clientX;
+    lastY = e.clientY;
+  }
+  isMoving = true;
+  drawSegment(e.clientX, e.clientY);
+});
+
+window.addEventListener("mouseleave", () => {
+  lastX = null;
+  lastY = null;
+});
+
+function drawSegment(x, y) {
+  // fade old trail by clearing with transparency (no color tint)
+  tctx.globalCompositeOperation = "destination-out";
+  tctx.fillStyle = "rgba(0,0,0,0.05)"; // controls fade rate
+  tctx.fillRect(0, 0, trailCanvas.width, trailCanvas.height);
+
+  // draw new segment on top
+  tctx.globalCompositeOperation = "source-over";
+  tctx.beginPath();
+  tctx.moveTo(lastX, lastY);
+  tctx.lineTo(x, y);
+  tctx.strokeStyle = "rgba(0,0,0,0.4)";
+  tctx.lineWidth = 5;
+  tctx.lineCap = "round";
+  tctx.lineJoin = "round";
+  tctx.stroke();
+
+  lastX = x;
+  lastY = y;
+}
+
+// keep fading when not moving
+function fadeLoop() {
+  if (!isMoving) {
+    tctx.globalCompositeOperation = "destination-out";
+    tctx.fillStyle = "rgba(0,0,0,0.04)";
+    tctx.fillRect(0, 0, trailCanvas.width, trailCanvas.height);
+    tctx.globalCompositeOperation = "source-over";
+  }
+  isMoving = false;
+  requestAnimationFrame(fadeLoop);
+}
+fadeLoop();
+
   
     // ✅ Only ONE lyric physics setup
     const { Engine, Render, Runner, Bodies, World, Mouse, MouseConstraint } = Matter;
@@ -328,113 +440,4 @@ window.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("scroll", updateVisibleGrid);
   });
   
-  // --- Info Popup Toggle ---
-const infoButton = document.getElementById("info-button");
-const infoPopup = document.getElementById("info-popup");
-const closeInfo = document.getElementById("close-info");
-
-infoButton.addEventListener("click", () => {
-  infoPopup.classList.add("show");
-});
-
-closeInfo.addEventListener("click", () => {
-  infoPopup.classList.remove("show");
-});
-
-// Optional: close popup if user clicks outside box
-infoPopup.addEventListener("click", (e) => {
-  if (e.target === infoPopup) {
-    infoPopup.classList.remove("show");
-  }
-});
-
-const scrollSpeed = 10;
-let keysPressed = {};
-
-window.addEventListener("keydown", (e) => {
-  keysPressed[e.key] = true;
-});
-
-window.addEventListener("keyup", (e) => {
-  keysPressed[e.key] = false;
-});
-
-function moveView() {
-  let dx = 0, dy = 0;
-  if (keysPressed["ArrowUp"]) dy -= scrollSpeed;
-  if (keysPressed["ArrowDown"]) dy += scrollSpeed;
-  if (keysPressed["ArrowLeft"]) dx -= scrollSpeed;
-  if (keysPressed["ArrowRight"]) dx += scrollSpeed;
-
-  if (dx !== 0 || dy !== 0) {
-    window.scrollBy({ top: dy, left: dx });
-  }
-
-  requestAnimationFrame(moveView);
-}
-
-moveView();
-
-// --- Smooth transparent mouse trail ---
-const trailCanvas = document.getElementById("trail-canvas");
-const tctx = trailCanvas.getContext("2d", { alpha: true }); // ensure transparency
-
-function resizeTrailCanvas() {
-  trailCanvas.width = window.innerWidth;
-  trailCanvas.height = window.innerHeight;
-}
-resizeTrailCanvas();
-window.addEventListener("resize", resizeTrailCanvas);
-
-let lastX = null;
-let lastY = null;
-let isMoving = false;
-
-// track mouse movement
-window.addEventListener("mousemove", (e) => {
-  if (lastX === null) {
-    lastX = e.clientX;
-    lastY = e.clientY;
-  }
-  isMoving = true;
-  drawSegment(e.clientX, e.clientY);
-});
-
-window.addEventListener("mouseleave", () => {
-  lastX = null;
-  lastY = null;
-});
-
-function drawSegment(x, y) {
-  // fade old trail by clearing with transparency (no color tint)
-  tctx.globalCompositeOperation = "destination-out";
-  tctx.fillStyle = "rgba(0,0,0,0.05)"; // controls fade rate
-  tctx.fillRect(0, 0, trailCanvas.width, trailCanvas.height);
-
-  // draw new segment on top
-  tctx.globalCompositeOperation = "source-over";
-  tctx.beginPath();
-  tctx.moveTo(lastX, lastY);
-  tctx.lineTo(x, y);
-  tctx.strokeStyle = "rgba(0,0,0,0.4)";
-  tctx.lineWidth = 5;
-  tctx.lineCap = "round";
-  tctx.lineJoin = "round";
-  tctx.stroke();
-
-  lastX = x;
-  lastY = y;
-}
-
-// keep fading when not moving
-function fadeLoop() {
-  if (!isMoving) {
-    tctx.globalCompositeOperation = "destination-out";
-    tctx.fillStyle = "rgba(0,0,0,0.04)";
-    tctx.fillRect(0, 0, trailCanvas.width, trailCanvas.height);
-    tctx.globalCompositeOperation = "source-over";
-  }
-  isMoving = false;
-  requestAnimationFrame(fadeLoop);
-}
-fadeLoop();
+ 
