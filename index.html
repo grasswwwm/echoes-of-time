@@ -7,25 +7,33 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 </head>
 <body>
+  <!-- Audio + Info Buttons -->
   <button id="audio-toggle">🔊 Play</button>
   <button id="info-button">Info</button>
+
+  <!-- Info Popup -->
   <div id="info-popup">
     <div id="info-content">
       <h1>Echoes of Time</h1>
       <p>
-        You’re invited to walk through an endless plane of tiles from my hometown Macau.
-Each scroll erases what came before, yet your trail remains. scroll and drag to create your own echoes.   
+        You’re invited to walk through an endless plane of tiles from my hometown Macau.<br>
+        Each scroll erases what came before, yet your trail remains. Scroll and drag to create your own echoes.
       </p>
       <p>
-        The sounds and words are sampled from Pink Floyd’s “Time".
+        The sounds and words are sampled from Pink Floyd’s “Time”.
       </p>
       <button id="close-info">Close</button>
     </div>
   </div>
-  <canvas id="lyricCanvas"></canvas>
-  <canvas id="trail-canvas"></canvas>
-  <div id="grid-container"></div>
-  <script src="script.js"></script>
 
+  <!-- Canvases -->
+  <canvas id="trail-canvas"></canvas>
+  <canvas id="lyricCanvas"></canvas>
+  
+  <!-- Tile container -->
+  <div id="grid-container"></div>
+
+  <!-- Script at the END -->
+  <script src="script.js"></script>
 </body>
 </html>
