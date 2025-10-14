@@ -203,3 +203,27 @@ body {
   0%   { opacity: 1; transform: translate(-50%, -50%) scaleX(1) rotate(var(--angle)); }
   100% { opacity: 0; transform: translate(-50%, -50%) scaleX(0.5) rotate(var(--angle)); }
 }
+
+/* Fix layering */
+#trail-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+#lyricCanvas {
+  z-index: 800;
+}
+
+#info-popup {
+  z-index: 5000;
+}
+
+#grid-container {
+  z-index: 1;
+}
+
