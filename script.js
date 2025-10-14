@@ -43,7 +43,7 @@ window.addEventListener("DOMContentLoaded", () => {
   
     const engine = Engine.create();
     const world = engine.world;
-    world.gravity.y = 1;
+    world.gravity.y = 0.5;
   
     const canvas = document.getElementById("lyricCanvas");
     canvas.width = window.innerWidth;
@@ -76,48 +76,81 @@ window.addEventListener("DOMContentLoaded", () => {
     World.add(world, mouseConstraint);
 
     function spawnLyric(lyric) {
-        const fontSize = 20 + Math.random() * 40;
-        const fontColor = Math.random() < 0.5 ? "black" : "#b3b3b3";
-      
-        // Measure text width roughly based on character count
-        const textWidth = lyric.length * (fontSize * 0.6);
-        const safeMargin = 100;
-        const maxX = window.innerWidth - textWidth - safeMargin;
-      
-        // Prevent off-screen spawn
-        const startX = Math.max(safeMargin, Math.random() * maxX);
-        const startY = 100;
-      
-        const bodies = [];
-      
-        lyric.split("").forEach((ch, i) => {
-          const body = Bodies.circle(startX + i * (fontSize * 0.6), startY, 10, {
-            restitution: 0.7,
-            friction: 0.1,
-            render: { fillStyle: fontColor }
-          });
-          body.labelText = ch;
-          body.fontSize = fontSize;
-          body.fontColor = fontColor;
-          body.alpha = 1.0;
-          World.add(world, body);
-          bodies.push(body);
-        });
-      
-        // Fade out + remove
-        setTimeout(() => {
-          const fadeInterval = setInterval(() => {
-            let allGone = true;
-            for (const b of bodies) {
-              b.alpha -= 0.05;
-              if (b.alpha > 0) allGone = false;
-            }
-            if (allGone) {
-              clearInterval(fadeInterval);
-              bodies.forEach(b => World.remove(world, b));
-            }
-          }, 100);
-        }, 2500);
+      const fontSize = 20 + Math.random() * 40;
+  const fontColor = Math.random() < 0.5 ? "black" : "#b3b3b3";
+
+  // Split lyric into words and choose a few
+  const words = lyric.split(" ");
+  const numWordsToShow = Math.ceil(Math.random() * 3) + 1; // 2–4 words
+  const selectedWords = [];
+
+  while (selectedWords.length < numWordsToShow && words.length > 0) {
+    const index = Math.floor(Math.random() * words.length);
+    selectedWords.push(words.splice(index, 1)[0]);
+  }
+
+  const safeMargin = 100;
+  const screenWidth = window.innerWidth;
+  const screenHeight = window.innerHeight;
+  const usedPositions = []; // store occupied X ranges
+  const bodies = [];
+
+  selectedWords.forEach((word) => {
+    const wordWidth = word.length * (fontSize * 0.4) + 40; // tighter letter width estimate
+    let startX, overlap;
+
+    // --- choose random X that doesn’t overlap previously placed words ---
+    do {
+      overlap = false;
+      startX = safeMargin + Math.random() * (screenWidth - safeMargin * 2 - wordWidth);
+      for (const [x1, x2] of usedPositions) {
+        if (startX < x2 && startX + wordWidth > x1) {
+          overlap = true;
+          break;
+        }
+      }
+    } while (overlap && usedPositions.length < 50); // failsafe
+
+    usedPositions.push([startX, startX + wordWidth]);
+
+    const startY = 100 + Math.random() * (screenHeight * 0.3); // vary height (top third)
+    let currentX = startX;
+
+    // --- create each letter body ---
+    for (let i = 0; i < word.length; i++) {
+      const ch = word[i];
+      const body = Matter.Bodies.circle(currentX, startY, 10, {
+        restitution: 0.6,
+        friction: 0.1,
+        density: 0.0005,
+        render: { fillStyle: fontColor },
+      });
+      body.labelText = ch;
+      body.fontSize = fontSize;
+      body.fontColor = fontColor;
+      body.alpha = 1.0;
+      Matter.World.add(world, body);
+      bodies.push(body);
+
+      // tighter spacing between letters
+      currentX += fontSize * 0.4;
+    }
+  });
+
+  // --- fade out + remove ---
+  setTimeout(() => {
+    const fadeInterval = setInterval(() => {
+      let allGone = true;
+      for (const b of bodies) {
+        b.alpha -= 0.05;
+        if (b.alpha > 0) allGone = false;
+      }
+      if (allGone) {
+        clearInterval(fadeInterval);
+        bodies.forEach((b) => Matter.World.remove(world, b));
+      }
+    }, 100);
+  }, 3000);
       }
       
 
@@ -295,3 +328,113 @@ window.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("scroll", updateVisibleGrid);
   });
   
+  // --- Info Popup Toggle ---
+const infoButton = document.getElementById("info-button");
+const infoPopup = document.getElementById("info-popup");
+const closeInfo = document.getElementById("close-info");
+
+infoButton.addEventListener("click", () => {
+  infoPopup.classList.add("show");
+});
+
+closeInfo.addEventListener("click", () => {
+  infoPopup.classList.remove("show");
+});
+
+// Optional: close popup if user clicks outside box
+infoPopup.addEventListener("click", (e) => {
+  if (e.target === infoPopup) {
+    infoPopup.classList.remove("show");
+  }
+});
+
+const scrollSpeed = 10;
+let keysPressed = {};
+
+window.addEventListener("keydown", (e) => {
+  keysPressed[e.key] = true;
+});
+
+window.addEventListener("keyup", (e) => {
+  keysPressed[e.key] = false;
+});
+
+function moveView() {
+  let dx = 0, dy = 0;
+  if (keysPressed["ArrowUp"]) dy -= scrollSpeed;
+  if (keysPressed["ArrowDown"]) dy += scrollSpeed;
+  if (keysPressed["ArrowLeft"]) dx -= scrollSpeed;
+  if (keysPressed["ArrowRight"]) dx += scrollSpeed;
+
+  if (dx !== 0 || dy !== 0) {
+    window.scrollBy({ top: dy, left: dx });
+  }
+
+  requestAnimationFrame(moveView);
+}
+
+moveView();
+
+// --- Smooth transparent mouse trail ---
+const trailCanvas = document.getElementById("trail-canvas");
+const tctx = trailCanvas.getContext("2d", { alpha: true }); // ensure transparency
+
+function resizeTrailCanvas() {
+  trailCanvas.width = window.innerWidth;
+  trailCanvas.height = window.innerHeight;
+}
+resizeTrailCanvas();
+window.addEventListener("resize", resizeTrailCanvas);
+
+let lastX = null;
+let lastY = null;
+let isMoving = false;
+
+// track mouse movement
+window.addEventListener("mousemove", (e) => {
+  if (lastX === null) {
+    lastX = e.clientX;
+    lastY = e.clientY;
+  }
+  isMoving = true;
+  drawSegment(e.clientX, e.clientY);
+});
+
+window.addEventListener("mouseleave", () => {
+  lastX = null;
+  lastY = null;
+});
+
+function drawSegment(x, y) {
+  // fade old trail by clearing with transparency (no color tint)
+  tctx.globalCompositeOperation = "destination-out";
+  tctx.fillStyle = "rgba(0,0,0,0.05)"; // controls fade rate
+  tctx.fillRect(0, 0, trailCanvas.width, trailCanvas.height);
+
+  // draw new segment on top
+  tctx.globalCompositeOperation = "source-over";
+  tctx.beginPath();
+  tctx.moveTo(lastX, lastY);
+  tctx.lineTo(x, y);
+  tctx.strokeStyle = "rgba(0,0,0,0.4)";
+  tctx.lineWidth = 5;
+  tctx.lineCap = "round";
+  tctx.lineJoin = "round";
+  tctx.stroke();
+
+  lastX = x;
+  lastY = y;
+}
+
+// keep fading when not moving
+function fadeLoop() {
+  if (!isMoving) {
+    tctx.globalCompositeOperation = "destination-out";
+    tctx.fillStyle = "rgba(0,0,0,0.04)";
+    tctx.fillRect(0, 0, trailCanvas.width, trailCanvas.height);
+    tctx.globalCompositeOperation = "source-over";
+  }
+  isMoving = false;
+  requestAnimationFrame(fadeLoop);
+}
+fadeLoop();

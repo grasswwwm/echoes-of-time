@@ -91,4 +91,116 @@ body {
     pointer-events: none;
   }
   
-  
+  /* --- Info Button --- */
+#info-button {
+  position: fixed;
+  top: 15px;
+  left: 20px;
+  z-index: 200;
+  background: rgba(255,255,255,0.8);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font-family: sans-serif;
+}
+
+#info-button:hover {
+  background: rgba(255,255,255,1);
+}
+
+/* --- Popup Overlay --- */
+#info-popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+  z-index: 9999;
+}
+
+/* --- Active popup --- */
+#info-popup.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* --- Inner content box --- */
+#info-content {
+  background: white;
+  padding: 40px 60px;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  max-width: 500px;
+  text-align: center;
+  font-family: "Swear Display", serif;
+}
+
+#info-content h1 {
+  font-size: 2em;
+  margin-bottom: 0.5em;
+}
+
+#info-content p {
+  color: #333;
+  font-size: 1em;
+  line-height: 1.6em;
+  margin-bottom: 1.8em;
+}
+
+#close-info {
+  background: #000;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+#close-info:hover {
+  background: #333;
+}
+
+/* --- Trail container --- */
+#trail-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 999999; /* make sure it’s above everything */
+}
+
+/* --- Visible trail lines --- */
+.trail-line {
+  position: absolute;
+  width: 80px; /* long line so we can see it clearly */
+  height: 4px; /* thick for visibility */
+  background: rgba(255, 0, 0, 0.8); /* bright red for testing */
+  transform: translate(-50%, -50%) rotate(var(--angle));
+  border-radius: 2px;
+  animation: fadeTrail 3s ease-out forwards;
+}
+
+@keyframes fadeTrail {
+  0%   { opacity: 1; transform: translate(-50%, -50%) scaleX(1) rotate(var(--angle)); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scaleX(0.5) rotate(var(--angle)); }
+}
+
+#trail-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 120; /* slightly below lyrics */
+}

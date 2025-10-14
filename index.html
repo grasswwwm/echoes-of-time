@@ -8,8 +8,24 @@
 </head>
 <body>
   <button id="audio-toggle">🔊 Play</button>
+  <button id="info-button">Info</button>
+  <div id="info-popup">
+    <div id="info-content">
+      <h1>Echoes of Time</h1>
+      <p>
+        You’re invited to walk through an endless plane of tiles from my hometown Macau.
+Each scroll erases what came before, yet your trail remains. scroll and drag to create your own echoes.   
+      </p>
+      <p>
+        The sounds and words are sampled from Pink Floyd’s “Time".
+      </p>
+      <button id="close-info">Close</button>
+    </div>
+  </div>
   <canvas id="lyricCanvas"></canvas>
+  <canvas id="trail-canvas"></canvas>
   <div id="grid-container"></div>
   <script src="script.js"></script>
+
 </body>
 </html>
